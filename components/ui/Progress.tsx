@@ -7,16 +7,22 @@ interface ProgressProps {
   value: number; // 0-100
   style?: any;
   indicatorStyle?: any;
+  indicatorColor?: string;
 }
 
-export function Progress({ value, style, indicatorStyle }: ProgressProps) {
+export function Progress({ value, style, indicatorStyle, indicatorColor }: ProgressProps) {
   const colors = useThemeColors();
   const clampedValue = Math.max(0, Math.min(100, value));
 
   return (
     <View style={[styles.container, { backgroundColor: colors.secondary }, style]}>
       <View
-        style={[styles.indicator, { backgroundColor: colors.primary }, indicatorStyle, { width: `${clampedValue}%` }]}
+        style={[
+          styles.indicator,
+          { backgroundColor: indicatorColor || colors.primary },
+          indicatorStyle,
+          { width: `${clampedValue}%` },
+        ]}
       />
     </View>
   );

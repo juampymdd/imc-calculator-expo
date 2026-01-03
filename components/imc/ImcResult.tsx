@@ -42,6 +42,16 @@ export function ImcResult({
       ? 'success'
       : 'info';
 
+  // Color de la barra según la categoría
+  const progressColor =
+    categoryIntent === 'danger'
+      ? colors.destructive
+      : categoryIntent === 'warning'
+      ? colors.warning
+      : categoryIntent === 'success'
+      ? colors.success
+      : colors.info;
+
   return (
     <Card style={styles.card}>
       <CardHeader>
@@ -71,7 +81,35 @@ export function ImcResult({
             <Text variant="small" style={{ marginBottom: spacing.sm }}>
               Escala de IMC (15-45)
             </Text>
-            <Progress value={bmiProgress} />
+            <Progress value={bmiProgress} indicatorColor={progressColor} />
+            
+            {/* Referencia de rangos */}
+            <View style={styles.progressReference}>
+              <View style={styles.referenceItem}>
+                <View style={[styles.referenceCircle, { backgroundColor: colors.info }]} />
+                <Text variant="small" style={{ color: colors.mutedForeground }}>
+                  {'<18.5'}
+                </Text>
+              </View>
+              <View style={styles.referenceItem}>
+                <View style={[styles.referenceCircle, { backgroundColor: colors.success }]} />
+                <Text variant="small" style={{ color: colors.mutedForeground }}>
+                  18.5-24.9
+                </Text>
+              </View>
+              <View style={styles.referenceItem}>
+                <View style={[styles.referenceCircle, { backgroundColor: colors.warning }]} />
+                <Text variant="small" style={{ color: colors.mutedForeground }}>
+                  25-29.9
+                </Text>
+              </View>
+              <View style={styles.referenceItem}>
+                <View style={[styles.referenceCircle, { backgroundColor: colors.destructive }]} />
+                <Text variant="small" style={{ color: colors.mutedForeground }}>
+                  {'>30'}
+                </Text>
+              </View>
+            </View>
           </View>
 
           {/* Healthy Weight Range */}
@@ -128,6 +166,22 @@ const styles = StyleSheet.create({
   categoryDetail: {
     marginTop: spacing.sm,
     textAlign: 'center',
+  },
+  progressReference: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.xs,
+  },
+  referenceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs / 2,
+  },
+  referenceCircle: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   healthyCard: {
     borderWidth: 0,
