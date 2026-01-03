@@ -5,8 +5,9 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Emerald (Tailwind-ish): https://tailwindcss.com/docs/customizing-colors
+const tintColorLight = '#10B981';
+const tintColorDark = '#34D399';
 
 export const Colors = {
   light: {

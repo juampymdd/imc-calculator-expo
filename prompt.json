@@ -1,0 +1,313 @@
+{
+  "app": {
+    "name": "BMI / IMC Calculator",
+    "slug": "imc-calculator-mobile",
+    "platform": "mobile",
+    "stack": {
+      "framework": "Expo (React Native)",
+      "router": "expo-router",
+      "ui": {
+        "library": "custom components inspired by shadcn",
+        "notes": "Use reusable components (Button, Card, Input, Select, Badge, Progress) styled with Tailwind-like utilities"
+      },
+      "styling": {
+        "engine": "NativeWind",
+        "theme": {
+          "mode": ["light", "dark", "system"],
+          "implementation": "expo-system-ui + nativewind",
+          "tokens": "use semantic colors via CSS variables / Tailwind config",
+          "notes": "No hardcoded hex in components; use semantic intents"
+        }
+      }
+    },
+    "localization": {
+      "defaultLocale": "es-AR",
+      "numberFormat": "es-AR"
+    }
+  },
+
+  "navigation": {
+    "type": "stack",
+    "initialRoute": "index",
+    "routes": [
+      {
+        "name": "index",
+        "title": "Calculadora de IMC",
+        "description": "Calculá tu IMC con kg/lb y cm/in, severidad por colores y peso objetivo."
+      }
+    ]
+  },
+
+  "features": {
+    "inputs": {
+      "weight": {
+        "label": "Peso",
+        "units": ["kg", "lb"],
+        "defaultUnit": "kg",
+        "keyboard": "decimal-pad",
+        "validation": {
+          "required": true,
+          "min": 10,
+          "max": 500,
+          "step": 0.1,
+          "messages": {
+            "required": "Ingresá tu peso.",
+            "range": "El peso debe estar entre 10 y 500."
+          }
+        }
+      },
+      "height": {
+        "label": "Altura",
+        "units": ["cm", "in"],
+        "defaultUnit": "cm",
+        "keyboard": "decimal-pad",
+        "validation": {
+          "required": true,
+          "min": 50,
+          "max": 272,
+          "step": 0.1,
+          "messages": {
+            "required": "Ingresá tu altura.",
+            "range": "La altura debe estar entre 50 y 272."
+          }
+        }
+      },
+      "actions": {
+        "primary": {
+          "label": "Calcular",
+          "behavior": "compute on press; also compute live if inputs valid"
+        },
+        "secondary": {
+          "label": "Limpiar",
+          "behavior": "reset form and computed state"
+        }
+      }
+    },
+
+    "calculations": {
+      "conversions": {
+        "lb_to_kg": {
+          "formula": "kg = lb * 0.45359237",
+          "precision": 4
+        },
+        "in_to_cm": {
+          "formula": "cm = in * 2.54",
+          "precision": 2
+        },
+        "cm_to_m": {
+          "formula": "m = cm / 100",
+          "precision": 4
+        }
+      },
+      "bmi": {
+        "formula": "BMI = kg / (m^2)",
+        "rounding": {
+          "bmiDecimals": 1,
+          "weightDecimals": 1
+        }
+      },
+      "optimalWeight": {
+        "definition": "rango saludable según IMC 18.5–24.9",
+        "inputsNormalized": ["kg", "cm"],
+        "outputs": {
+          "healthyRangeKg": {
+            "minFormula": "minKg = 18.5 * (m^2)",
+            "maxFormula": "maxKg = 24.9 * (m^2)"
+          },
+          "targetPointKg": {
+            "strategy": "midpoint",
+            "formula": "targetKg = ((18.5 + 24.9) / 2) * (m^2)"
+          },
+          "deltas": {
+            "showDifferenceToRange": true,
+            "examples": {
+              "underweight": "faltan X kg para llegar a 18.5",
+              "overweightOrMore": "sobran X kg para llegar a 24.9"
+            }
+          }
+        }
+      }
+    },
+
+    "classification": {
+      "standard": "WHO",
+      "ranges": [
+        {
+          "key": "underweight",
+          "label": "Bajo peso",
+          "bmiMin": null,
+          "bmiMax": 18.5,
+          "severity": 2,
+          "ui": {
+            "intent": "info",
+            "badge": "secondary"
+          }
+        },
+        {
+          "key": "healthy",
+          "label": "Saludable",
+          "bmiMin": 18.5,
+          "bmiMax": 24.9,
+          "severity": 0,
+          "ui": {
+            "intent": "success",
+            "badge": "default"
+          }
+        },
+        {
+          "key": "overweight",
+          "label": "Sobrepeso",
+          "bmiMin": 25,
+          "bmiMax": 29.9,
+          "severity": 1,
+          "ui": {
+            "intent": "warning",
+            "badge": "secondary"
+          }
+        },
+        {
+          "key": "obesity_1",
+          "label": "Obesidad (Grado I)",
+          "bmiMin": 30,
+          "bmiMax": 34.9,
+          "severity": 3,
+          "ui": {
+            "intent": "danger",
+            "badge": "destructive"
+          }
+        },
+        {
+          "key": "obesity_2",
+          "label": "Obesidad (Grado II)",
+          "bmiMin": 35,
+          "bmiMax": 39.9,
+          "severity": 4,
+          "ui": {
+            "intent": "danger",
+            "badge": "destructive"
+          }
+        },
+        {
+          "key": "obesity_3",
+          "label": "Obesidad (Grado III)",
+          "bmiMin": 40,
+          "bmiMax": null,
+          "severity": 5,
+          "ui": {
+            "intent": "danger",
+            "badge": "destructive"
+          }
+        }
+      ]
+    }
+  },
+
+  "ui": {
+    "layout": {
+      "screenPadding": "px-4 py-6",
+      "scroll": true,
+      "safeArea": true
+    },
+    "components": {
+      "formCard": {
+        "type": "Card",
+        "title": "Ingresá tus datos",
+        "description": "Podés usar kg o lb y cm o pulgadas.",
+        "fields": [
+          { "type": "Input", "name": "weightValue", "placeholder": "Ej: 92.5" },
+          { "type": "SegmentedControl", "name": "weightUnit", "options": ["kg", "lb"] },
+          { "type": "Input", "name": "heightValue", "placeholder": "Ej: 175" },
+          { "type": "SegmentedControl", "name": "heightUnit", "options": ["cm", "in"] }
+        ],
+        "footer": {
+          "buttons": [
+            { "type": "Button", "variant": "primary", "label": "Calcular" },
+            { "type": "Button", "variant": "secondary", "label": "Limpiar" }
+          ]
+        }
+      },
+      "resultCard": {
+        "type": "Card",
+        "title": "Resultado",
+        "sections": [
+          { "type": "Stat", "label": "Tu IMC", "value": "{bmi}" },
+          { "type": "Badge", "label": "{categoryLabel}", "intent": "{intent}" },
+          { "type": "Text", "content": "{categoryDetail}" },
+          { "type": "Progress", "value": "{bmiScaled0to100}" },
+          {
+            "type": "CardInner",
+            "title": "Peso saludable estimado",
+            "content": {
+              "rangeKg": "{healthyMinKg}–{healthyMaxKg} kg",
+              "targetKg": "{targetKg} kg",
+              "deltaMessage": "{deltaMessage}"
+            }
+          }
+        ]
+      },
+      "disclaimer": {
+        "type": "Alert",
+        "variant": "info",
+        "content": "El IMC es una estimación y no reemplaza evaluación médica."
+      }
+    }
+  },
+
+  "state": {
+    "form": {
+      "weightValue": null,
+      "weightUnit": "kg",
+      "heightValue": null,
+      "heightUnit": "cm"
+    },
+    "derived": {
+      "weightKg": null,
+      "heightCm": null,
+      "heightM": null,
+      "bmi": null,
+      "categoryKey": null,
+      "healthyMinKg": null,
+      "healthyMaxKg": null,
+      "targetKg": null,
+      "deltaMessage": null
+    },
+    "persistence": {
+      "enabled": true,
+      "storage": "AsyncStorage",
+      "keys": ["weightValue", "weightUnit", "heightValue", "heightUnit"],
+      "behavior": "restore on app open; recompute if valid"
+    }
+  },
+
+  "validationAndErrors": {
+    "strategy": "zod + react-hook-form",
+    "errorDisplay": {
+      "location": "below input",
+      "component": "Text (error style)"
+    }
+  },
+
+  "logicDetails": {
+    "bmiScale": {
+      "minBmi": 15,
+      "maxBmi": 45,
+      "mapping": "scaled = clamp(((bmi - 15) / 30) * 100, 0, 100)"
+    }
+  },
+
+  "deliverables": {
+    "screens": ["app/index.tsx"],
+    "components": [
+      "components/imc/ImcCalculator.tsx",
+      "components/imc/ImcResult.tsx"
+    ],
+    "utils": ["lib/imc.ts (pure functions)"],
+    "dependencies": [
+      "expo-router",
+      "nativewind",
+      "react-hook-form",
+      "zod",
+      "@react-native-async-storage/async-storage"
+    ]
+  }
+}
